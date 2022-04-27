@@ -14,10 +14,8 @@ function loadEventListners() {
 
   // Add task event
   form.addEventListener('submit', addTask);
-
-  // Remove ttask event
-  taskList.addEventListener('click', removeTask);
-
+  // Modify task event
+  taskList.addEventListener('click', modifyTask);
   // Clear task event
   clearBtn.addEventListener('click', clearTasks);
 
@@ -37,6 +35,19 @@ function addTask(e) {
   li.className = "collection-item";
   // Create text node and append to li
   li.appendChild(document.createTextNode(taskInput.value));
+
+  // // create repeat button.
+  // const repeat = '<a href="#" class="repeat off"><i class="fa-solid fa-repeat"></i></a>';
+
+  // create repeat button.
+  const repeat = document.createElement('a');
+  // Add class 
+  repeat.className = 'repeat-item secondary-content';
+  // Add icon html 
+  repeat.innerHTML = '<i class="fa-solid fa-repeat fa-spin">';
+  // Append the link to the li
+  li.appendChild( repeat);
+
   // Create new link element
   const link = document.createElement('a');
   // Add class 
@@ -45,6 +56,7 @@ function addTask(e) {
   link.innerHTML = '<i class="fa fa-remove"></i>';
   // Append the link to the li
   li.appendChild(link);
+
   // Append li to ul
   taskList.appendChild(li);
   // Store in LS
@@ -55,12 +67,16 @@ function addTask(e) {
 }
 
 // Remove Task
-function removeTask(e) {
+function modifyTask(e) {
   if (e.target.parentElement.classList.contains('delete-item')) {
     console.log(e.target);
     e.target.parentElement.parentElement.remove();
     // Remove from LS
     removeTaskFromLocalStorage(e.target.parentElement.parentElement);
+  }
+  else if (e.target.parentElement.classList.contains('repeat-item')) {
+    console.log(e.target);
+    // e.target.parentElement.parentElement.remove();
   }
 }
 

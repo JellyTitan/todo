@@ -8,6 +8,17 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
   <title>Task List</title>
+  <style>
+    a.repeat-item > .fa-repeat {
+      color: gray;
+      --fa-animation-iteration-count: 0; 
+    }
+    a.repeat-item.repeat-on > .fa-repeat {
+      --fa-animation-duration: 1s; 
+      --fa-animation-iteration-count: .5; 
+      --fa-animation-timing: ease-in-out;
+    }
+  </style>
 </head>
 <body>
 <div class="container">
