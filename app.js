@@ -63,12 +63,10 @@ function addTask(e) {
 // Remove Task
 function removeTask(e) {
   if (e.target.parentElement.classList.contains('delete-item')) {
-  console.log(e.target);
-  if (confirm('Are You sure?')) {
-      e.target.parentElement.parentElement.remove();
-      // Remove from LS
-      removeTaskFromLocalStorage(e.target.parentElement.parentElement);
-    }
+    console.log(e.target);
+    e.target.parentElement.parentElement.remove();
+    // Remove from LS
+    removeTaskFromLocalStorage(e.target.parentElement.parentElement);
   }
 }
 
@@ -87,6 +85,8 @@ function removeTaskFromLocalStorage(taskItem) {
   // Get tasks from LS.
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
   // Remove task.
+  // @todo if there are multiple tasks with the same text, this will delete them
+  // all. Rewire to check task text & prioirty.
   if (tasksObj.hasOwnProperty(taskItem.textContent)) {
     delete tasksObj[taskItem.textContent];
   }
@@ -97,15 +97,14 @@ function removeTaskFromLocalStorage(taskItem) {
 
 // Clear tasks
 function clearTasks() {
-  // Kill it all
-  // taskList.innerHTML = '';
-  // Faster!
-  while(taskList.firstChild) {
-    taskList.removeChild(taskList.firstChild);
+  if (confirm('Are You sure?')) {
+    // Wipe out all li from the ul.
+    while(taskList.firstChild) {
+      taskList.removeChild(taskList.firstChild);
+    }
+    // Clear from LS
+    clearTasksFromLocalStorage();
   }
-
-  // Clear from LS
-  clearTasksFromLocalStorage();
 }
 
 // Clear from LS
@@ -113,8 +112,10 @@ function clearTasksFromLocalStorage() {
   if (localStorage.getItem('tasks') !== null) {
     localStorage.removeItem('tasks');
   }
+  if (localStorage.getItem('tasksObj') !== null) {
+    localStorage.removeItem('tasksObj');
+  }
 }
-
 
 // Filter tasks
 function filterTasks(e) {
