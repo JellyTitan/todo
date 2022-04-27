@@ -135,12 +135,8 @@ function filterTasks(e) {
 // Get tasks from LS
 // @todo - inside the foreach is duplicated - DRY
 function getTasks() {
-  let tasks;
-  if (localStorage.getItem('tasks') === null) {
-    tasks = [];
-  } else {
-    tasks = JSON.parse(localStorage.getItem('tasks'));
-  } 
+  // Get tasks from LS
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || []; 
   tasks.forEach(function(task) {
      // Create li element
     const li = document.createElement('li');
@@ -159,6 +155,29 @@ function getTasks() {
     // Append li to ul
     taskList.appendChild(li);
   })
+
+  // Get tasks from LS
+  let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || []; 
+  for (const [task_text, task_attributes] of Object.entries(tasksObj)) {
+    // console.log(`${task_text}: ${task_attributes}`);
+    // Create li element
+    const li = document.createElement('li');
+    // Add class
+    li.className = "collection-item";
+    // Create text node and append to li - pulling from the storage here instead of field content.
+    li.appendChild(document.createTextNode(task_text));
+    // Create new link element
+    const link = document.createElement('a');
+    // Add class 
+    link.className = 'delete-item secondary-content';
+    // Add icon html 
+    link.innerHTML = '<i class="fa fa-remove"></i>';
+    // Append the link to the li
+    li.appendChild(link);
+    // Append li to ul
+    // taskList.appendChild(li);
+  }
+
 }
 
 // Store in LS
