@@ -35,24 +35,18 @@ function addTask(e) {
   const li = document.createElement('li');
   // Add class
   li.className = "collection-item";
-  
   // Create text node and append to li
   li.appendChild(document.createTextNode(taskInput.value));
-  
   // Create new link element
   const link = document.createElement('a');
   // Add class 
   link.className = 'delete-item secondary-content';
   // Add icon html 
   link.innerHTML = '<i class="fa fa-remove"></i>';
-
-
   // Append the link to the li
   li.appendChild(link);
-  
   // Append li to ul
   taskList.appendChild(li);
-  
   // Store in LS
   storeTaskInLocalStorage(taskInput.value);
   //clear input
@@ -73,16 +67,6 @@ function removeTask(e) {
 // Remove task from storage.
 function removeTaskFromLocalStorage(taskItem) {
   // Get tasks from LS.
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  // Remove task from Array.
-  tasks.forEach((task, index) => {
-    if (taskItem.textContent === task) {
-      tasks.splice(index, 1);
-    }
-  });
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-
-  // Get tasks from LS.
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
   // Remove task.
   // @todo if there are multiple tasks with the same text, this will delete them
@@ -90,7 +74,6 @@ function removeTaskFromLocalStorage(taskItem) {
   if (tasksObj.hasOwnProperty(taskItem.textContent)) {
     delete tasksObj[taskItem.textContent];
   }
-
   // Set back to local storage.
   localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
 }
@@ -109,9 +92,6 @@ function clearTasks() {
 
 // Clear from LS
 function clearTasksFromLocalStorage() {
-  if (localStorage.getItem('tasks') !== null) {
-    localStorage.removeItem('tasks');
-  }
   if (localStorage.getItem('tasksObj') !== null) {
     localStorage.removeItem('tasksObj');
   }
@@ -136,27 +116,6 @@ function filterTasks(e) {
 // @todo - inside the foreach is duplicated - DRY
 function getTasks() {
   // Get tasks from LS
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || []; 
-  tasks.forEach(function(task) {
-     // Create li element
-    const li = document.createElement('li');
-    // Add class
-    li.className = "collection-item";
-    // Create text node and append to li - pulling from the storage here instead of field content.
-    li.appendChild(document.createTextNode(task));
-    // Create new link element
-    const link = document.createElement('a');
-    // Add class 
-    link.className = 'delete-item secondary-content';
-    // Add icon html 
-    link.innerHTML = '<i class="fa fa-remove"></i>';
-    // Append the link to the li
-    li.appendChild(link);
-    // Append li to ul
-    taskList.appendChild(li);
-  })
-
-  // Get tasks from LS
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || []; 
   for (const [task_text, task_attributes] of Object.entries(tasksObj)) {
     // console.log(`${task_text}: ${task_attributes}`);
@@ -175,20 +134,12 @@ function getTasks() {
     // Append the link to the li
     li.appendChild(link);
     // Append li to ul
-    // taskList.appendChild(li);
+    taskList.appendChild(li);
   }
-
 }
 
 // Store in LS
 function storeTaskInLocalStorage(task) {
-  // Get tasks from LS.
-  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-  // Add the new task
-  tasks.push(task);
-  // Set back to local storage
-  localStorage.setItem('tasks', JSON.stringify(tasks));
-
   // Get tasks from LS.
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
   // Add the new task.
