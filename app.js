@@ -48,14 +48,10 @@ function addTask(e) {
   // Append the link to the li
   li.appendChild( repeat);
 
-  // Create new link element
-  const link = document.createElement('a');
-  // Add class 
-  link.className = 'delete-item secondary-content';
-  // Add icon html 
-  link.innerHTML = '<i class="fa fa-remove"></i>';
-  // Append the link to the li
-  li.appendChild(link);
+  // Create close button element.
+  closeButton = createCloseButton();
+  // Append close button to the li.
+  li.appendChild(closeButton);
 
   // Append li to ul
   taskList.appendChild(li);
@@ -141,17 +137,31 @@ function getTasks() {
     li.className = "collection-item";
     // Create text node and append to li - pulling from the storage here instead of field content.
     li.appendChild(document.createTextNode(task_text));
-    // Create new link element
-    const link = document.createElement('a');
-    // Add class 
-    link.className = 'delete-item secondary-content';
-    // Add icon html 
-    link.innerHTML = '<i class="fa fa-remove"></i>';
-    // Append the link to the li
-    li.appendChild(link);
+    // Create close button element.
+    closeButton = createCloseButton();
+    // Append close button to the li
+    li.appendChild(closeButton);
     // Append li to ul
     taskList.appendChild(li);
   }
+}
+
+/**
+ * Returns html element for a close button.
+ * 
+ * @see getTasks()
+ * @see addTask()
+ * @todo strip down font stack and serve locally.
+ */
+function createCloseButton() {
+  // Create new link element.
+  const link = document.createElement('a');
+  // Add classes.
+  link.className = 'delete-item secondary-content';
+  // Add icon html.
+  link.innerHTML = '<i class="fa fa-remove"></i>';
+  // Send it back.
+  return link;
 }
 
 // Store in LS
