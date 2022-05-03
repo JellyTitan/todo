@@ -113,6 +113,18 @@ function clearTasks() {
   }
 }
 
+/**
+ * Updates task sequence in tasks object
+ */
+function updateSequence(tasksObj) {
+  // @todo - there must be a more elegant way to do this?
+  // let i = 1;
+  // for (const [task_text, task_attributes] of Object.entries(tasksObj)) {
+  //   task_attributes.sequence = i;
+  //   i++;
+  // }
+}
+
 // Clear from LS
 function clearTasksFromLocalStorage() {
   if (localStorage.getItem('tasksObj') !== null) {
@@ -212,7 +224,7 @@ function storeTaskInLocalStorage(task) {
   // Add the new task.
   tasksObj[task] = { 
     'created': new Date().getTime(),
-    'sequence' : 1,
+    'sequence' : Object.keys(tasksObj).length + 1,
     'repeat' : 0,
     'time-estimate': 0,
     'tags': [],
