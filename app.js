@@ -11,7 +11,6 @@ loadEventListners();
 function loadEventListners() {
   // Dom Load event
   document.addEventListener('DOMContentLoaded', getTasks);
-
   // Add task event
   form.addEventListener('submit', addTask);
   // Modify task event
@@ -36,17 +35,10 @@ function addTask(e) {
   // Create text node and append to li
   li.appendChild(document.createTextNode(taskInput.value));
 
-  // // create repeat button.
-  // const repeat = '<a href="#" class="repeat off"><i class="fa-solid fa-repeat"></i></a>';
-
-  // create repeat button.
-  const repeat = document.createElement('a');
-  // Add class 
-  repeat.className = 'repeat-item secondary-content';
-  // Add icon html 
-  repeat.innerHTML = '<i class="fa-solid fa-repeat fa-spin">';
+  // Create repeat button element.
+  repeatButton = createRepeatButton();
   // Append the link to the li
-  li.appendChild( repeat);
+  li.appendChild(repeatButton);
 
   // Create close button element.
   closeButton = createCloseButton();
@@ -71,9 +63,28 @@ function modifyTask(e) {
     removeTaskFromLocalStorage(e.target.parentElement.parentElement);
   }
   else if (e.target.parentElement.classList.contains('repeat-item')) {
-    console.log(e.target);
-    // e.target.parentElement.parentElement.remove();
+    // Add class to visually indicate on/off status.
+    e.target.parentElement.classList.toggle('repeat-on');
+    // updateRepeatStatus(e.target.parentElement.parentElement);
+    e.target.parentElement.classList.contains('repeat-on') ? updateRepeatStatus(e.target.parentElement.parentElement, 1) : updateRepeatStatus(e.target.parentElement.parentElement, 0);
   }
+}
+
+/**
+ * Update repeat status in the task object.
+ * 
+ * @todo verbose error handling.
+ */
+function updateRepeatStatus(taskItem, repeatStatus) {
+  // Get tasks from LS.
+  let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
+  // Update repeat status.
+  if (tasksObj.hasOwnProperty(taskItem.textContent)) {
+    tasksObj[taskItem.textContent].repeat = repeatStatus;
+  }
+  // console.dir(tasksObj);
+  // Set back to local storage.
+  localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
 }
 
 // Remove task from storage.
@@ -137,10 +148,17 @@ function getTasks() {
     li.className = "collection-item";
     // Create text node and append to li - pulling from the storage here instead of field content.
     li.appendChild(document.createTextNode(task_text));
+    
     // Create close button element.
     closeButton = createCloseButton();
     // Append close button to the li
     li.appendChild(closeButton);
+
+    // Create repeat button element.
+    repeatButton = createRepeatButton(task_attributes.repeat);
+    // Append the link to the li
+    li.appendChild(repeatButton);
+
     // Append li to ul
     taskList.appendChild(li);
   }
@@ -152,6 +170,7 @@ function getTasks() {
  * @see getTasks()
  * @see addTask()
  * @todo strip down font stack and serve locally.
+ * @todo Add padding to buttons for easier mobile tap.
  */
 function createCloseButton() {
   // Create new link element.
@@ -164,6 +183,28 @@ function createCloseButton() {
   return link;
 }
 
+/**
+ * Returns html element for a 'repeat' icon.
+ * 
+ * @param: repeat_status bool
+ * 
+ * @see getTasks()
+ * @see addTask()
+ * @todo strip down font stack and serve locally.
+ */
+function createRepeatButton(repeat_status = 0) {
+  // create repeat button.
+  const repeat = document.createElement('a');
+  // Add class 
+  repeat.className = 'repeat-item secondary-content';
+  // Add additional class status.
+  repeat.className += repeat_status ? ' repeat-on' : '';
+  // Add icon html 
+  repeat.innerHTML = '<i class="fa-solid fa-repeat fa-spin">';
+  // Send it back.
+  return repeat;
+}
+
 // Store in LS
 function storeTaskInLocalStorage(task) {
   // Get tasks from LS.
@@ -172,12 +213,12 @@ function storeTaskInLocalStorage(task) {
   tasksObj[task] = { 
     'created': new Date().getTime(),
     'sequence' : 1,
-    'reoccuring' : 0,
+    'repeat' : 0,
     'time-estimate': 0,
     'tags': [],
   }
   // Set back to local storage.
   // @todo: post to Google sheets API for portability.
   localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
-  // console.dir(tasksObj);
+  console.dir(tasksObj);
 }
