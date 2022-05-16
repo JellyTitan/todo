@@ -17,7 +17,6 @@ function loadEventListners() {
   taskList.addEventListener('click', modifyTask);
   // Clear task event
   clearBtn.addEventListener('click', clearTasks);
-
   // Filter tasks event
   filter.addEventListener('keyup', filterTasks);
 }
@@ -32,6 +31,12 @@ function addTask(e) {
   const li = document.createElement('li');
   // Add class
   li.className = "collection-item";
+  li.setAttribute("draggable", true);
+  // Create status faux radio button.
+  checkButton = createCheckButton();
+  // Append close button to the li
+  li.appendChild(checkButton);
+
   // Create text node and append to li
   li.appendChild(document.createTextNode(taskInput.value));
 
@@ -47,6 +52,10 @@ function addTask(e) {
 
   // Append li to ul
   taskList.appendChild(li);
+
+  li.addEventListener('dragstart', handleDragStart);
+  li.addEventListener('dragend', handleDragEnd);
+
   // Store in LS
   storeTaskInLocalStorage(taskInput.value);
   //clear input
@@ -65,8 +74,15 @@ function modifyTask(e) {
   else if (e.target.parentElement.classList.contains('repeat-item')) {
     // Add class to visually indicate on/off status.
     e.target.parentElement.classList.toggle('repeat-on');
-    // updateRepeatStatus(e.target.parentElement.parentElement);
     e.target.parentElement.classList.contains('repeat-on') ? updateRepeatStatus(e.target.parentElement.parentElement, 1) : updateRepeatStatus(e.target.parentElement.parentElement, 0);
+  } else if (e.target.parentElement.classList.contains('complete-status')) {
+    // Add class to visually indicate on/off status.
+    e.target.parentElement.classList.toggle('completed');
+    // @todo: this could be a one-liner using map array:
+    // ['left-to-right', 'right-to-left'].map(v=> group.classList.toggle(v) ) 
+    e.target.classList.toggle('fa-circle-dot');
+    e.target.classList.toggle('fa-circle-check');
+    e.target.parentElement.classList.contains('completed') ? updateCompleteStatus(e.target.parentElement.parentElement, 1) : updateCompleteStatus(e.target.parentElement.parentElement, 0);
   }
 }
 
@@ -75,7 +91,7 @@ function modifyTask(e) {
  * 
  * @todo verbose error handling.
  */
-function updateRepeatStatus(taskItem, repeatStatus) {
+function updateRepeatStatus(taskItem, repeatStatus = 0) {
   // Get tasks from LS.
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
   // Update repeat status.
@@ -85,6 +101,23 @@ function updateRepeatStatus(taskItem, repeatStatus) {
   // console.dir(tasksObj);
   // Set back to local storage.
   localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
+}
+
+/**
+ * Update complete status in the task object.
+ * 
+ * @todo verbose error handling.
+ */
+function updateCompleteStatus(taskItem, completeStatus = 0) {
+  // Get tasks from LS.
+  let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
+  // Update repeat status.
+  if (tasksObj.hasOwnProperty(taskItem.textContent)) {
+    tasksObj[taskItem.textContent].complete = completeStatus;
+  }
+  // Set back to local storage.
+  localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
+  console.dir(tasksObj);
 }
 
 // Remove task from storage.
@@ -158,6 +191,13 @@ function getTasks() {
     const li = document.createElement('li');
     // Add class
     li.className = "collection-item";
+    li.setAttribute("draggable", true);
+
+    // Create status faux radio button.
+    checkButton = createCheckButton();
+    // Append close button to the li
+    li.appendChild(checkButton);
+
     // Create text node and append to li - pulling from the storage here instead of field content.
     li.appendChild(document.createTextNode(task_text));
     
@@ -173,6 +213,10 @@ function getTasks() {
 
     // Append li to ul
     taskList.appendChild(li);
+
+    // Set draggable event listener.
+    li.addEventListener('dragstart', handleDragStart);
+    li.addEventListener('dragend', handleDragEnd);
   }
 }
 
@@ -217,20 +261,53 @@ function createRepeatButton(repeat_status = 0) {
   return repeat;
 }
 
+/**
+ * Returns html element for a 'check' icon.
+ * 
+ * @param: repeat_status bool
+ * 
+ * @see getTasks()
+ * @see addTask()
+ * @todo strip down font stack and serve locally.
+ */
+function createCheckButton(check_status = 0) {
+  // create repeat button.
+  const checkButton = document.createElement('a');
+  // Add class 
+  checkButton.className = 'complete-status ';
+  // Add additional class status.
+  checkButton.className += check_status ? '' : 'completed';
+  // Add additional class status.
+  checkButtonClass = check_status ? 'fa-circle-check' : 'fa-circle-dot';
+  // Add icon html 
+  checkButton.innerHTML = `<i class="fa-solid ${checkButtonClass}">`;
+  // Send it back.
+  return checkButton;
+}
+
 // Store in LS
 function storeTaskInLocalStorage(task) {
   // Get tasks from LS.
   let tasksObj = JSON.parse(localStorage.getItem('tasksObj')) || {};
   // Add the new task.
   tasksObj[task] = { 
+    'complete' : 0,
     'created': new Date().getTime(),
-    'sequence' : Object.keys(tasksObj).length + 1,
     'repeat' : 0,
-    'time-estimate': 0,
+    'sequence' : Object.keys(tasksObj).length + 1,
     'tags': [],
+    'time-estimate': 0,
   }
   // Set back to local storage.
   // @todo: post to Google sheets API for portability.
   localStorage.setItem('tasksObj', JSON.stringify(tasksObj));
   console.dir(tasksObj);
+}
+
+function handleDragStart(e) {
+  this.style.opacity = '0.1';
+}
+
+function handleDragEnd(e) {
+  this.style.opacity = '1';
 }
